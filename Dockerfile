@@ -58,3 +58,4 @@ HEALTHCHECK --interval=30s --timeout=5s --start-period=10s \
 
 USER root
 ENTRYPOINT ["tini", "--", "./entrypoint.sh"]
+
