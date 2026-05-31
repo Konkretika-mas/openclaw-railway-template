@@ -52,11 +52,13 @@ RUN NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.co
 
 # Устанавливаем Python Playwright и браузер Chromium под пользователем openclaw
 # Playwright версии 1.44.0, которая была в моем изначальном скрипте
-RUN python3 -m pip install --no-cache-dir playwright==1.44.0 \
- && python3 -m playwright install chromium
+# Используем виртуальное окружение, т.к. Debian Bookworm блокирует системный pip (PEP 668)
+RUN python3 -m venv /home/openclaw/playwright-venv \
+ && /home/openclaw/playwright-venv/bin/pip install --no-cache-dir playwright==1.44.0 \
+ && /home/openclaw/playwright-venv/bin/python -m playwright install chromium
 
 # Настраиваем переменные окружения, включая те, что связаны с Homebrew и портом
-ENV PATH="/home/linuxbrew/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/sbin:${PATH}"
+ENV PATH="/home/openclaw/playwright-venv/bin:/home/linuxbrew/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/sbin:${PATH}"
 ENV HOMEBREW_PREFIX="/home/linuxbrew/.linuxbrew"
 ENV HOMEBREW_CELLAR="/home/linuxbrew/.linuxbrew/Cellar"
 ENV HOMEBREW_REPOSITORY="/home/linuxbrew/.linuxbrew/Homebrew"
