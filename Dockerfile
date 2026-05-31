@@ -37,16 +37,18 @@ USER openclaw
 # Устанавливаем Homebrew
 RUN NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 
+# --- ВОТ ИЗМЕНЕНИЕ ---
+# Это "сломает" кэш для следующих слоев и принудит переустановить Playwright
+RUN echo "TRIGGER PLAYWRIGHT REINSTALL: $(date)"
+
 # Создаем виртуальную среду для Playwright
 ENV PLAYWRIGHT_VENV=/home/openclaw/venv
 RUN python3 -m venv $PLAYWRIGHT_VENV
 
 # Настраиваем PATH, чтобы python и pip из venv использовались по умолчанию
-# НО ГЛАВНОЕ - явно вызываем pip из venv на следующем шаге
 ENV PATH="$PLAYWRIGHT_VENV/bin:/home/linuxbrew/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/sbin:${PATH}"
 
 # Устанавливаем Playwright и его браузеры ВНУТРИ виртуальной среды
-# *** ИСПОЛЬЗУЕМ ЯВНЫЙ ПУТЬ К PIP ИЗ VENV ***
 RUN $PLAYWRIGHT_VENV/bin/pip install --no-cache-dir playwright==1.44.0 \
  && python3 -m playwright install chromium
 
