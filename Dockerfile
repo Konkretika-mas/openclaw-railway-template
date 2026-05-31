@@ -34,12 +34,23 @@ RUN useradd -m -s /bin/bash openclaw \
 
 USER openclaw
 
+# Устанавливаем Homebrew
 RUN NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 
-RUN python3 -m pip install --break-system-packages --no-cache-dir playwright==1.44.0 \
+# Создаем виртуальную среду для Playwright
+ENV PLAYWRIGHT_VENV=/home/openclaw/venv
+RUN python3 -m venv $PLAYWRIGHT_VENV
+
+# Настраиваем PATH, чтобы python и pip из venv использовались по умолчанию
+# (добавляем путь к venv/bin в самое начало PATH)
+ENV PATH="$PLAYWRIGHT_VENV/bin:/home/linuxbrew/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/sbin:${PATH}"
+
+# Устанавливаем Playwright и его браузеры ВНУТРИ виртуальной среды
+# Теперь не нужен --break-system-packages, так как мы в изолированной среде
+RUN python3 -m pip install --no-cache-dir playwright==1.44.0 \
  && python3 -m playwright install chromium
 
-ENV PATH="/home/linuxbrew/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/sbin:${PATH}"
+# Переменные окружения Homebrew (повторно устанавливаем, чтобы убедиться в порядке)
 ENV HOMEBREW_PREFIX="/home/linuxbrew/.linuxbrew"
 ENV HOMEBREW_CELLAR="/home/linuxbrew/.linuxbrew/Cellar"
 ENV HOMEBREW_REPOSITORY="/home/linuxbrew/.linuxbrew/Homebrew"
