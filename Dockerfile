@@ -42,12 +42,12 @@ ENV PLAYWRIGHT_VENV=/home/openclaw/venv
 RUN python3 -m venv $PLAYWRIGHT_VENV
 
 # Настраиваем PATH, чтобы python и pip из venv использовались по умолчанию
-# (добавляем путь к venv/bin в самое начало PATH)
+# НО ГЛАВНОЕ - явно вызываем pip из venv на следующем шаге
 ENV PATH="$PLAYWRIGHT_VENV/bin:/home/linuxbrew/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/sbin:${PATH}"
 
 # Устанавливаем Playwright и его браузеры ВНУТРИ виртуальной среды
-# Теперь не нужен --break-system-packages, так как мы в изолированной среде
-RUN python3 -m pip install --no-cache-dir playwright==1.44.0 \
+# *** ИСПОЛЬЗУЕМ ЯВНЫЙ ПУТЬ К PIP ИЗ VENV ***
+RUN $PLAYWRIGHT_VENV/bin/pip install --no-cache-dir playwright==1.44.0 \
  && python3 -m playwright install chromium
 
 # Переменные окружения Homebrew (повторно устанавливаем, чтобы убедиться в порядке)
